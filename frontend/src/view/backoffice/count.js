@@ -20,12 +20,7 @@ export default function CountComponent(props) {
             })
         }*/
 
-            axios.get(ip + '/pedidos/count?estado_id=' + props.estadoId + '&cliente_id=' + props.cliente + '&oquecontar=' + props.oquecontar, authHeader())
-            .then(res => {
-                setCount(res.data.count)
-                setEstado(res.data.estado)
-                
-            })
+           
         
         
     }, [])

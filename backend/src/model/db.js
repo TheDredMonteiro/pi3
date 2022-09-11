@@ -2,9 +2,9 @@ const { Sequelize } = require('sequelize');
 // testing
 
 const sequelize = new Sequelize(
-    'pi3-sequelize',
+    'pi3-livraria',
     'postgres',
-    'gatinhos',
+    'portugal',
     {
         host: 'localhost',
         port: '5432',

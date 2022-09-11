@@ -6,198 +6,6 @@ const bcrypt = require('bcrypt')
 // ################### DEFINIÇÕES #######################
 // ######################################################
 
-const Formulario = sequelize.define('formulario',
-    {
-        titulo: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-        descricao: {
-            type: DataTypes.STRING
-        }
-    },
-    {
-        freezeTableName: true,
-        paranoid: true,
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at',
-        deletedAt: 'deleted_at',
-    }
-)
-
-const Grupo = sequelize.define('grupo',
-    {
-        titulo: {
-            type: DataTypes.STRING,
-            allowNull: false
-        }
-    },
-    {
-        freezeTableName: true,
-        paranoid: true,
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at',
-        deletedAt: 'deleted_at',
-    }
-)
-
-const Pergunta = sequelize.define('pergunta',
-    {
-        titulo: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-        descricao: {
-            type: DataTypes.STRING
-        },
-        valor_unitario: {
-            type: DataTypes.FLOAT,
-            allowNull: false,
-            validate: {
-                isFloat: {
-                    args: true,
-                    msg: 'Não é um FLOAT válido'
-                }
-            }
-        }
-    },
-    {
-        freezeTableName: true,
-        paranoid: true,
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at',
-        deletedAt: 'deleted_at',
-        name: {
-            singular: 'pergunta',
-            plural: 'perguntas'
-        },
-    }
-)
-
-const TipoPergunta = sequelize.define('tipo_pergunta',
-    {
-        titulo: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-        obs: DataTypes.STRING
-    },
-    {
-        freezeTableName: true,
-        timestamps: false,
-        name: {
-            singular: 'tipo_pergunta',
-            plural: 'tipos_perguntas'
-        },
-    }
-)
-
-const Resposta = sequelize.define('resposta',
-    {
-        texto: {
-            type: DataTypes.STRING
-        },
-        inteiro: {
-            type: DataTypes.INTEGER,
-            validate: {
-                min: 0
-            }
-        },
-        valor_unitario: {
-            type: DataTypes.FLOAT,
-            allowNull: false,
-            validate: {
-                isFloat: {
-                    args: true,
-                    msg: 'Não é um FLOAT válido'
-                }
-            }
-        }
-    },
-    {
-        freezeTableName: true,
-        timestamps: false,
-        name: {
-            singular: 'resposta',
-            plural: 'respostas'
-        },
-        validate: {
-            EitherTextoInteiro() {
-                if ((this.texto === null) && (this.inteiro === null)) {
-                    throw new Error('Pelo menos um de "texto" ou "inteiro" tem que estar preenchido.')
-                }
-            }
-        }
-    }
-)
-
-const Pedido = sequelize.define('pedido',
-    {
-        valor_total: {
-            type: DataTypes.FLOAT,
-            allowNull: false,
-            validate: {
-                isFloat: {
-                    args: true,
-                    msg: '\x1b[31mO preço total não é um FLOAT válido.\x1b[0m'
-                },
-                notNull: {
-                    args: true,
-                    msg: '\x1b[31mO preço total do pedido não pode estar vazio.\x1b[0m'
-                }
-            }
-        }
-    },
-    {
-        freezeTableName: true,
-        paranoid: true,
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at',
-        deletedAt: 'deleted_at',
-    }
-)
-
-const EstadoPedido = sequelize.define('estado_pedido',
-    {
-        descricao: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            notNull: {
-                args: true,
-                msg: 'A descrição do estado do pedido não pode estar vazia.'
-            }
-        },
-        icon: DataTypes.STRING,
-        cor: DataTypes.STRING,
-        obs: DataTypes.STRING
-    },
-    {
-        freezeTableName: true,
-        timestamps: false,
-    }
-)
-
-const MotivoRecusa = sequelize.define('motivo_recusa_pedido',
-    {
-        descricao: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            notNull: {
-                args: true,
-                msg: 'A descrição do motivo de recusa do pedido não pode estar vazia.'
-            }
-        },
-        obs: DataTypes.STRING
-    },
-    {
-        freezeTableName: true,
-        timestamps: false,
-    }
-)
 
 const Cliente = sequelize.define('cliente',
     {
@@ -225,9 +33,37 @@ const Cliente = sequelize.define('cliente',
                 }
             }
         },
-        empresa: { type: DataTypes.STRING },
+        password: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mA password não pode estar vazia.\x1b[0m'
+                }
+            }
+        },
+        n_livros: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mO nome do cliente não pode estar vazio.\x1b[0m'
+                }
+            }
+        },
+        estado: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mO nome do cliente não pode estar vazio.\x1b[0m'
+                }
+            }
+        },
         tlm: { type: DataTypes.INTEGER },
-        distrito: { type: DataTypes.STRING }
     },
     {
         freezeTableName: true,
@@ -238,134 +74,311 @@ const Cliente = sequelize.define('cliente',
         deletedAt: 'deleted_at',
     }
 )
-
-// ######################################################
-// ################### ASSOCIAÇÕES ######################
-// ######################################################
-
-// Formulario  1:N  GrupoPerguntas
-Formulario.hasMany(Grupo, {
-    foreignKey: {
-        name: 'formulario_id',
-        allowNull: false
+const Categoria = sequelize.define('categoria',
+    {
+        nome: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mO autor do livro não pode estar vazio.\x1b[0m'
+                }
+            }
+        }, 
+        n_livros: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mO autor do livro não pode estar vazio.\x1b[0m'
+                }
+            }
+        }, 
+        
+    },
+)
+const Livro = sequelize.define('livro',
+    {
+        titulo: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mO titulo do livro não pode estar vazio.\x1b[0m'
+                }
+            }
+        },
+        autor: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mO autor do livro não pode estar vazio.\x1b[0m'
+                }
+            }
+        }, 
+        sinopse: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mA sinopse do livro não pode estar vazia.\x1b[0m'
+                }
+            }
+        }, 
+        foto: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mA foto do livro não pode estar vazia.\x1b[0m'
+                }
+            }
+        },  
+        
+        stock: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mO stock do livro não pode estar vazia.\x1b[0m'
+                }
+            }
+        },
+        
+        classificacao: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mO stock do livro não pode estar vazia.\x1b[0m'
+                }
+            }
+        }, 
+        n_lido: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mO stock do livro não pode estar vazia.\x1b[0m'
+                }
+            }
+        }, 
+        deleted: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mO stock do livro não pode estar vazia.\x1b[0m'
+                }
+            }
+        },
+        categoria: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mA foto do livro não pode estar vazia.\x1b[0m'
+                }
+            }
+        },  
+        
+    },
+    {
+        freezeTableName: true,
+        paranoid: true,
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
+        deletedAt: 'deleted_at',
     }
-});
-Grupo.belongsTo(Formulario, {
+)
+Categoria.hasMany(Livro, {
     foreignKey: {
-        name: 'formulario_id',
-        allowNull: false
-    }
-});
-
-// ######################################################
-
-// GrupoPerguntas  1:N  Pergunta
-// ? as perguntas não precisam de necessariamente ter um grupo
-// * Não há nenhum caso disto, mas não é impossível,
-// * daí a foreignKey poder ser null
-Grupo.hasMany(Pergunta, { 
-    foreignKey: {
-        name: 'grupo_id',
-        allowNull: false
-    }
-});
-Pergunta.belongsTo(Grupo, { 
-    foreignKey: {
-        name: 'grupo_id',
-        allowNull: false
-    }
-});
-
-// ######################################################
-
-// Pergunta N:1 TipoPergunta
-TipoPergunta.hasMany(Pergunta, {
-    foreignKey: {
-        name: 'tipo_id',
+        name: 'id_categoria',
         allowNull: false
     }
 })
-Pergunta.belongsTo(TipoPergunta, {
-    as: 'tipo_pergunta',
+Livro.belongsTo(Categoria, {
     foreignKey: {
-        name: 'tipo_id',
+        name: 'id_categoria',
+        allowNull: false
+    }
+})
+const Cliente_Livro = sequelize.define('cliente_livro',
+    {
+        titulo: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mO titulo do livro não pode estar vazio.\x1b[0m'
+                }
+            }
+        },
+        classificacao: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mO stock do livro não pode estar vazia.\x1b[0m'
+                }
+            }
+        }, 
+        autor: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mO autor do livro não pode estar vazio.\x1b[0m'
+                }
+            }
+        }, 
+        sinopse: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mA sinopse do livro não pode estar vazia.\x1b[0m'
+                }
+            }
+        }, 
+        foto: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mA foto do livro não pode estar vazia.\x1b[0m'
+                }
+            }
+        },  
+        
+        id_categoria: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mO stock do livro não pode estar vazia.\x1b[0m'
+                }
+            }
+        }, 
+        lido: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mO lido não pode estar vazio.\x1b[0m'
+                }
+            }
+        },
+        
+        categoria: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mA foto do livro não pode estar vazia.\x1b[0m'
+                }
+            }
+        },  
+        
+        
+    },
+    {
+        freezeTableName: true,
+        paranoid: true,
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
+        deletedAt: 'deleted_at',
+        
+        
+    },
+)
+Cliente.hasMany(Cliente_Livro, {
+    foreignKey: {
+        name: 'id_cliente',
+        allowNull: false
+    }
+})
+Cliente_Livro.belongsTo(Cliente, {
+    foreignKey: {
+        name: 'id_cliente',
+        allowNull: false
+    }
+})
+Livro.hasMany(Cliente_Livro, {
+    foreignKey: {
+        name: 'id_livro',
+        allowNull: false
+    }
+})
+Cliente_Livro.belongsTo(Livro, {
+    foreignKey: {
+        name: 'id_livro',
+        allowNull: false
+    }
+})
+const Cliente_Categoria = sequelize.define('cliente_categoria',
+    {
+        nome: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    args: true,
+                    msg: '\x1b[31mO autor do livro não pode estar vazio.\x1b[0m'
+                }
+            }
+        }, 
+    },
+)
+Cliente.hasMany(Cliente_Categoria, {
+    foreignKey: {
+        name: 'id_cliente',
+        allowNull: false
+    }
+})
+Cliente_Categoria.belongsTo(Cliente, {
+    foreignKey: {
+        name: 'id_cliente',
+        allowNull: false
+    }
+})
+Categoria.hasMany(Cliente_Categoria, {
+    foreignKey: {
+        name: 'id_categoria',
+        allowNull: false
+    }
+})
+Cliente_Categoria.belongsTo(Categoria, {
+    foreignKey: {
+        name: 'id_categoria',
         allowNull: false
     }
 })
 
-// ######################################################
 
-// Pedido  N:1  Cliente
-Cliente.hasMany(Pedido, {
-    foreignKey: {
-        name: 'cliente_id',
-        allowNull: false
-    }
-});
-Pedido.belongsTo(Cliente, {
-    foreignKey: {
-        name: 'cliente_id',
-        allowNull: false
-    }
-});
-
-// ######################################################
-
-EstadoPedido.hasMany(Pedido, {
-    foreignKey: {
-        name: 'estado_id',
-        allowNull: false
-    }
-});
-Pedido.belongsTo(EstadoPedido, {
-    foreignKey: {
-        name: 'estado_id',
-        allowNull: false
-    }
-})
-
-// ######################################################
-
-MotivoRecusa.hasMany(Pedido, { foreignKey: 'motivo_id' });
-Pedido.belongsTo(MotivoRecusa, { foreignKey: 'motivo_id' })
-
-// ######################################################
-
-// Resposta  N:1  Pedido
-Pedido.hasMany(Resposta, {
-    foreignKey: {
-        name: 'pedido_id',
-        allowNull: false
-    }
-});
-Resposta.belongsTo(Pedido, {
-    foreignKey: {
-        name: 'pedido_id',
-        allowNull: false
-    }
-});
-
-// ######################################################
-
-// Pergunta  1:N  Resposta
-Pergunta.hasMany(Resposta, {
-    foreignKey: {
-        name: 'pergunta_id',
-        allowNull: false
-    }
-});
-Resposta.belongsTo(Pergunta, {
-    foreignKey: {
-        name: 'pergunta_id',
-        allowNull: false
-    }
-});
-
-// ######################################################
-// ################# USER BACK OFFICE ###################
-// ######################################################
-
-const UserIncommun = sequelize.define('user_incommun', {
+const User = sequelize.define('user', {
     email: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -405,14 +418,14 @@ const UserIncommun = sequelize.define('user_incommun', {
     timestamps: false
 })
 
-UserIncommun.beforeCreate(user => {
+User.beforeCreate(user => {
 
     return bcrypt.hash(user.password, 10)
         .then(hash => { user.password = hash; })
         .catch(err => { throw new Error(err); });
 });
 
-const UserIncommunRole = sequelize.define('user_incommun_role', {
+const UserRole = sequelize.define('user_role', {
     descricao: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -425,13 +438,13 @@ const UserIncommunRole = sequelize.define('user_incommun_role', {
     timestamps: false
 })
 
-UserIncommunRole.hasMany(UserIncommun, {
+UserRole.hasMany(User, {
     foreignKey: {
         name: 'role_id',
         allowNull: false
     }
 })
-UserIncommun.belongsTo(UserIncommunRole, {
+User.belongsTo(UserRole, {
     foreignKey: {
         name: 'role_id',
         allowNull: false
@@ -439,36 +452,14 @@ UserIncommun.belongsTo(UserIncommunRole, {
 })
 
 // a visita só precisa do id do form associado e da data de criação
-const Visita = sequelize.define('visita', {}, {
-    freezeTableName: true,
-    timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at'
-})
-Formulario.hasMany(Visita, {
-    foreignKey: {
-        name: 'form_id',
-        allowNull: false
-    }
-})
-Visita.belongsTo(Formulario, {
-    foreignKey: {
-        name: 'form_id',
-        allowNull: false
-    }
-})
+
 
 module.exports = {
-    Formulario,
-    Grupo,
-    Pergunta,
-    TipoPergunta,
-    Resposta,
-    Pedido,
-    EstadoPedido,
-    MotivoRecusa,
+    Livro,
     Cliente,
-    UserIncommun,
-    UserIncommunRole,
-    Visita
+    Cliente_Livro,
+    Cliente_Categoria,
+    Categoria,
+    User,
+    UserRole
 }

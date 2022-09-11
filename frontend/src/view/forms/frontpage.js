@@ -1,13 +1,35 @@
 import axios from 'axios';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from 'react';
 import ip from '../../ip'
-import PuzzlePieces from '../../assets/svgs/puzzle_pieces.svg'
+import Livraria from '../../assets/imgs/livraria.jpg'
+import AuthService from "../../view/auth.service";
+const divStyle = {
+    width: '100%',
+    height: '750px',
+    backgroundImage: `url(${Livraria})`,
+    backgroundSize: 'cover'
+};
+const divStyle2 = {
+    width: '100%',
+    height: '350px',
+    alignItems: 'center'
 
-export default function FrontPage() {
+};
+const btnStyle = {
+    width: '120px',
+    height: '50px',
+    fontSize: '20px'
+
+};
+
+export default function FrontPage(props) {
 
     const [forms, setForms] = useState([])
-
+    const [loading, setLoading] = useState(false)
+    const [Email, setEmail] = useState('')
+    const [Pass, setPass] = useState('')
+    const navigate = useNavigate()
     useEffect(() => {
         document.title = 'Incommun'
 
@@ -28,8 +50,46 @@ export default function FrontPage() {
             .toLocaleLowerCase()
         return newNome
     }
+    function Cancelar() {
+        setEmail("")
+        setPass("")
 
-    function RestantesFormulários() {
+    }
+    function handleLogin(e) {
+        e.preventDefault()
+        setLoading(true)
+        let btn = e.nativeEvent.submitter
+        let btnText = document.getElementById('login-btn-text')
+
+        e.nativeEvent.submitter.classList.add('btn-danger')
+
+        setTimeout(() => {
+            e.nativeEvent.submitter.classList.remove('btn-danger')
+        }, 3000);
+        console.log("3")
+        AuthService
+            .login(Email, Pass)
+            .then(res => {
+                console.log("4")
+                if (res.success) {
+                    console.log("1")
+                    props.setLogin(true)
+                    navigate('/back-office/clientes')
+                } else {
+                    console.log(res)
+                    setLoading(false)
+                    
+                    btn.classList.add('btn-danger')
+                    btnText.textContent = res.response.data.message
+                    
+
+                   
+                }
+
+            })
+            .catch(error => { setLoading(false); alert(error); })
+    }
+    /*function RestantesFormulários() {
 
         return (
             forms.map(form => {
@@ -57,132 +117,117 @@ export default function FrontPage() {
                 )
             })
         )
-    }
+    }*/
 
     return (
-        <div className='container-fluid'>
+        <div className='container-fluid' style={divStyle}>
             {/* header */}
-            <div className='row justify-content-center bg-warning bg-opacity-10 py-5' style={{ minHeight: '80vh' }}>
-                <div className='col-5 d-flex flex-column justify-content-center align-items-start'>
-                    <div className='fw-bold lh-sm' style={{ fontSize: '8rem', textShadow: '-10px 10px 0px var(--bs-warning)' }}>
-                        Olá!
-                    </div>
-                    <div className='display-5'>
-                        Vamos criar algo diferente?
-                    </div>
 
-                </div>
-                <div className='col-4 d-flex align-items-center'>
-                    <img className='img-fluid' src={PuzzlePieces} alt='' />
-                </div>
+            <div className='col-4 d-flex flex-column py-5 justify-content-center' style={divStyle2}>
+                <h1 className='text-center ' style={{ color: "white", fontSize: "60px",textShadow: "3px 3px 5px #000000" }}>Livraria Monteiro</h1>
+                <h3 className='text-center ' style={{ color: "white",textShadow: "2px 2px 4px #000000" }}>Encontra o teu livro</h3>
+
             </div>
 
-            <div className='row  bg-dark py-5 text-light'>
-                <div className='col-12 text-center mb-5'>
-                    <div className='display-3 fw-bold' >
-                        Serviços personalizados&nbsp;
-                        <span className='border-bottom border-warning border-5 '>à sua medida</span>
+            <div className='mb-4 row row-cols-xl-2'>
+
+            <div className='col'>
+                   
+                   <div className='d-flex align-items-center justify-content-end'>
+                       <Link to='/back-office/registar' className='btn btn-light fw-bold border border-dark  text-center shadow' style={btnStyle}>
+                           Registar
+                       </Link>
+                   
+               </div>
+           </div>
+                <div className='col'>
+                   
+                        <div className='d-flex  text-center align-items-center justify-content-start'>
+                        <Link to='/back-office/login' className='btn btn-light fw-bold border border-dark  text-center shadow' style={btnStyle}>
+                           Login
+                       </Link>
+                           
+                        
                     </div>
                 </div>
-                <div className='col-12 '>
-                    <div className='container mt-5 mb-4'>
-                        <div className='row row-cols-3 gx-5'>
-                            <div className='col'>
-                                <div className='position-relative border border-secondary border-4 bg-dark p-4  rounded-5'>
-                                    {/* Icon */}
-                                    <span className='fs-1 px-3 py-1 rounded-pill border border-secondary border-4 bg-dark text-warning position-absolute top-0 start-50 translate-middle'>
-                                        <i className='bi bi-ui-checks'></i>
-                                    </span>
+                <div className="modal fade" id="contactar-cliente-modal" tabIndex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="criar-user-modal-label" aria-hidden="true">
+                <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div className="modal-content rounded-4 border-0 bg-dark-secondary shadow">
+                        <div className="modal-header border-0 rounded-0 bg-dark-secondary text-white">
+                            
+                            <button id='btn-close-criar-user' type="button" className="btn-close btn-close-white" data-bs-dismiss="modal" onClick={() => Cancelar()} aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body rounded-4 bg-light border-0 shadow">
+                            <form onSubmit={e => handleLogin(e)}>
+                                <div className="form-floating mb-3">
+                                    <input
+                                        // id='user-username-input'
+                                        className='form-control focus-warning text-dark rounded-3'
+                                        type='text'
+                                        placeholder='titulo'
+                                        autoComplete='none'
+                                        autoCapitalize='words'
+                                        required
+                                        value={Email}
+                                        onChange={e => { setEmail(e.target.value) }}
+                                        onInput={e => {
+                                            if (!e.target.validity.valid) {
+                                                e.target.classList.add('focus-danger')
 
-                                    {/* Titulo */}
-                                    <div className='fs-4 fw-bold mt-4 pt-2 mb-3'>
-                                        1. Preencha um formulário
-                                    </div>
-                                    {/* Texto */}
-                                    <div className='fs-5 fw-normal text-secondary lh-sm mb-3'>
-                                        Basta responder a algumas perguntas rápidas! Estimamos que demore menos de 5 minutos a completá-lo.
-
-                                    </div>
-
+                                                if (e.target.validity.valueMissing) {
+                                                    e.target.setCustomValidity('O assunto é de preenchimento obrigatório.')
+                                                    e.target.reportValidity()
+                                                } else {
+                                                    e.target.setCustomValidity('')
+                                                    e.target.classList.remove('focus-danger')
+                                                }
+                                            }
+                                        }}
+                                    />
+                                    <label className='text-dark' htmlFor="user-username-input">Email</label>
                                 </div>
-                            </div>
-                            <div className='col '>
-                                <div className='position-relative  border border-secondary border-4 bg-dark p-4  rounded-5'>
-                                    {/* Icon */}
-                                    <span className='fs-1 px-3 py-1 rounded-pill border border-secondary border-4 bg-dark text-warning position-absolute top-0 start-50 translate-middle'>
-                                        <i className='bi bi-envelope-paper-heart'></i>
-                                    </span>
+                                <div className="form-floating mb-3">
+                                    <input
+                                        // id='user-username-input'
+                                        className='form-control focus-warning text-dark rounded-3'
+                                        type='text'
+                                        placeholder='titulo'
+                                        autoComplete='none'
+                                        autoCapitalize='words'
+                                        required
+                                        value={Pass}
+                                        onChange={e => { setPass(e.target.value) }}
+                                        onInput={e => {
+                                            if (!e.target.validity.valid) {
+                                                e.target.classList.add('focus-danger')
 
-                                    {/* Titulo */}
-                                    <div className='fs-4 fw-bold mt-4 pt-2 mb-3'>
-                                        2. Receba o seu orçamento
-                                    </div>
-                                    {/* Texto */}
-                                    <div className='fs-5 fw-normal text-secondary lh-sm mb-3'>
-                                        Entramos em contacto consigo para que tudo esteja do seu agrado! Todos os preços são negociáveis.
-                                    </div>
-
+                                                if (e.target.validity.valueMissing) {
+                                                    e.target.setCustomValidity('O assunto é de preenchimento obrigatório.')
+                                                    e.target.reportValidity()
+                                                } else {
+                                                    e.target.setCustomValidity('')
+                                                    e.target.classList.remove('focus-danger')
+                                                }
+                                            }
+                                        }}
+                                    />
+                                    <label className='text-dark' htmlFor="user-username-input">Password</label>
                                 </div>
-                            </div>
-                            <div className='col h-100'>
-                                <div className='position-relative border border-secondary border-4 bg-dark p-4  rounded-5'>
-                                    {/* Icon */}
-                                    <span className='fs-1 px-3 py-1 rounded-pill border border-secondary border-4 bg-dark text-warning position-absolute top-0 start-50 translate-middle'>
-                                        <i className='bi bi-gift'></i>
-                                    </span>
 
-                                    {/* Titulo */}
-                                    <div className='fs-4 fw-bold mt-4 pt-2 mb-3'>
-                                        3. Desfrute dos serviços!
-                                    </div>
-                                    {/* Texto */}
-                                    <div className='fs-5 fw-normal text-secondary lh-sm mb-3'>
-                                        Usufrua dos nossos serviços como quiser! O sucesso do seu negócio é a nossa maior motivação!
-                                    </div>
-
+                                <div className='w-100 d-flex justify-content-end'>
+                                    <button id='btn-criar-user' type="submit" data-bs-dismiss="modal" className="btn btn-warning rounded-3 ">
+                                        
+                                        <span id='login-btn-text'>Login</span>
+                                    </button>
                                 </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className='row justify-content-center bg-warning bg-opacity-10 py-5'>
-                <div className='col-12 text-center mb-5 mt-4'>
-                    <div className='display-3 fw-bold' >
-                        Vamos a isto?
-                    </div>
-                </div>
-                <div className='col-12 mt-4 mb-5'>
-                    <div className='container'>
-                        <div className='row row-cols-3 gx-4'>
-                            <div className='col'>
-                                <div className='bg-transparent border border-warning border-3 p-4 pb-2 rounded-4'>
-
-                                    {/* Titulo */}
-                                    <div className='fs-2 fw-bold mb-3'>
-                                        Criação de Website
-                                    </div>
-                                    <div className='fs-5 fw-normal text-dark lh-sm mb-4'>
-                                        Criamos a sua porta de entrada ao mundo digital, personalizado às suas necessidades.
-
-                                    </div>
-                                    <div className='d-flex flex-column'>
-                                        <Link to={'/servicos-personalizados/' + nomeTransform(forms[0]?.titulo)} state={{ id: forms[0]?.id }} className='btn btn-warning fw-semibold rounded-3 mb-3 w-100'>{forms[0]?.titulo}</Link>
-                                        <Link to={'/servicos-personalizados/' + nomeTransform(forms[1]?.titulo)} state={{ id: forms[1]?.id }} className='btn btn-warning fw-semibold rounded-3 mb-3 w-100'>{forms[1]?.titulo}</Link>
-                                        <Link to={'/servicos-personalizados/' + nomeTransform(forms[2]?.titulo)} state={{ id: forms[2]?.id }} className='btn btn-warning fw-semibold rounded-3 mb-3 w-100'>{forms[2]?.titulo}</Link>
-                                    </div>
-                                    <div className='accordion-group'>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <RestantesFormulários />
-
-                        </div>
-                    </div>
-                </div>
             </div>
+
         </div>
     )
 

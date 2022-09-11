@@ -1,4 +1,4 @@
-var { Formulario, Grupo, Pergunta, TipoPergunta, Resposta, Pedido, EstadoPedido, MotivoRecusa, Cliente, UserIncommun, UserIncommunRole, Visita } = require('../model/tabelas')
+var {  Cliente, User, UserRole } = require('../model/tabelas')
 const jwt = require('jsonwebtoken');
 const config = require('../config');
 const bcrypt = require('bcrypt');
@@ -22,7 +22,7 @@ module.exports = {
             return
         }
 
-        let user = await UserIncommun
+        let user = await User
             .findOne({ where: { email: email } })
             .then(data => { return data })
             .catch(error => { console.log(error) })
@@ -32,8 +32,9 @@ module.exports = {
 
         if (!!user) {
             const passwordMatch = bcrypt.compareSync(password, user.password);
-            if (passwordMatch) {
-
+            console.log("b")
+            if (user.password == password) {
+                console.log("a")
                 let token = jwt.sign({ email: email }, config.JWT_SECRET,
                     // { expiresIn: '24h' }
                 );
@@ -58,11 +59,11 @@ module.exports = {
     list: async (req, res) => {
         await sequelize.sync()
             .then(async () => {
-                await UserIncommun
+                await User
                     .findAll({
                         attributes: ['username', 'email'],
                         include: {
-                            model: UserIncommunRole,
+                            model: UserRole,
                             attributes: ['descricao', 'obs']
                         }
                     })

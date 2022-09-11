@@ -82,8 +82,10 @@ export default function PedidosComponent() {
         return (
             pedidos.map(pedido => {
                 return (
+                    
                     <tr className='align-middle' key={pedido.id} id={pedido.cliente.id} data-email={pedido.cliente.email}>
                         {/* Data */}
+                        
                         <td className='text-start '>
                             <span className='text-muted badge p-0 fw-normal align-middle'>
                                 {new Date(pedido.created_at).toISOString().split('T')[0]}
@@ -93,6 +95,7 @@ export default function PedidosComponent() {
                         <td className='text-start text-dark lh-sm'>
                             <span className='fs-5 fw-semibold position-relative'>
                                 {pedido.cliente.nome}
+                                
                             </span>
                             <br />
                             <span className='fs-6 fw-semibold text-light-dark lh-sm'>

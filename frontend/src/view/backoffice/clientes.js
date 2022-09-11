@@ -18,24 +18,8 @@ export default function ClientesComponent() {
     const [titulo, setTitulo] = useState("Incommun - Serviços personalizados à sua medida!")
     const [corpo, setCorpo] = useState("Escreve alguma coisa.")
     const [loading, setLoading] = useState(false)
-    const [dicaDoDia, setDicaDoDia] = useState('')
-    const [autorDica, setAutorDica] = useState('')
 
-    useEffect(() => {
-        // Get total de clientes
-        // por defeito, sem mandar nenhuma query (nem estado nem dias),
-        // conta todos os clientes dos ultimos 30 dias
-        axios.get(ip + '/clientes/count?id=0&oquecontar=todos', authHeader())
-            .then(res => {
-                setTotalClientes(res.data.count)
-            })
-        // Get dica do dia
-        axios.get('https://api.quotable.io/random?tags=success|inspirational|happiness')
-            .then(res => {
-                setAutorDica(res.data.author)
-                setDicaDoDia(res.data.content)
-            })
-    }, [])
+    
 
     useEffect(() => {
 
@@ -79,6 +63,58 @@ export default function ClientesComponent() {
         const exampleAttr = div1.getAttribute('data-email');
         setEmail(exampleAttr); 
     }
+    function Estado(id) {
+        const div1 = document.getElementById(id)
+        const exampleAttr = div1.getAttribute('data-estado');
+        if(exampleAttr == 2)
+        {
+            const body = {
+                id: id,
+                estado: 1
+            }
+          
+            axios
+                .put(
+                    ip + '/clientes/update_estado',
+                    body,
+                    authHeader()
+                )
+                .then(res => {
+                    if (res.data.success) {
+                        window.location.reload(false);
+                    }
+                    else {
+                        alert("Error Web SeAArvice!");
+                    }
+                })
+                .catch(error => { alert(error); })
+        }
+        else if(exampleAttr == 1)
+        {
+            const body = {
+                id: id,
+                estado: 2
+            }
+          
+            axios
+            .put(
+                ip + '/clientes/update_estado',
+                body,
+                authHeader()
+            )
+            .then(res => {
+                if (res.data.success) {
+                    window.location.reload(false);
+                }
+                else {
+                    alert("Error Web SeAArvice!");
+                }
+            })
+            .catch(error => { alert(error); })
+        }
+        
+    }
+    
     function handleContactar(e) {
         e.preventDefault();
 
@@ -121,16 +157,14 @@ export default function ClientesComponent() {
         return (
             clientes.map(cliente => {
                 return (
-                    <tr className='align-middle' key={cliente.id} id={cliente.id} data-email={cliente.email}>
+                    <tr className='align-middle' key={cliente.id} id={cliente.id}  data-estado={cliente.estado} data-email={cliente.email}>
                         {/* Cliente */}
                         <td className='text-start text-dark lh-sm'>
                             <span className='fs-5 fw-semibold position-relative'>
                                 {cliente.nome}
                             </span>
-                            <br></br>
-                            <span className='badge p-0 fs-6 fw-semibold text-muted lh-sm'>
-                                {cliente.empresa}
-                            </span>
+                            
+                            
                         </td>
                         <td className='text-start text-dark lh-sm'>
                             <span className='fs-5 fw-semibold  position-relative'>
@@ -141,27 +175,34 @@ export default function ClientesComponent() {
                                 {cliente.tlm}
                             </span>
                         </td>
-                        
                         <td className='text-start text-dark lh-sm'>
-                            <span className='fs-4 fw-semibold position-relative'>
-                                {cliente.distrito}
-                            </span>
-                        </td>
-                        <td  className=''>
-                        <button
-                                id='contactar-cliente-btn'
-                                className='btn btn-warning w-100 fw-semibold'
-                                data-bs-toggle='modal'
-                                data-bs-target="#contactar-cliente-modal"
-                                onClick={() => mudarEmail(cliente.id)}
-                            >
-                                <i className='me-2 bi bi-send-fill'></i>
-                                Contactar cliente
+                            <span className='fs-5 fw-semibold position-relative'>
+                                {(cliente.estado == 1)&&
+                                <button
+                                
+                                className='btn btn-warning w-100 fw-semibold' onClick={() => {Estado(cliente.id)}}>
+                                
+                                Pendente
                                 
                             </button>
+                                }
+                                {(cliente.estado == 2)&&
+                                <button
+                                
+                                className='btn btn-success w-100 fw-semibold' onClick={() => {Estado(cliente.id)}}>
+                                
+                                Aceite
+                                
+                            </button>
+                                }
+                            </span>
+                            
+                            
                         </td>
                         <td >
-                            <Link to={"/back-office/clientes/" + cliente.id} className="btn btn-secondary  fs-6 bi-cash-stack me-2">&nbsp;Pedidos Cliente</Link>
+                            <Link to={"/back-office/lc_cliente/" + cliente.id} className="btn btn-secondary fs-6 me-2">
+                            <i className='me-2 bi bi-book text-white fs-5'></i>
+                                &nbsp;Livros e Categorias do Cliente</Link>
                         </td>
                     </tr>
                 )
@@ -178,41 +219,12 @@ export default function ClientesComponent() {
                         Clientes
                     </span>
                     <br />
-                    <span className='fs-6 fw-normal text-muted'>
-                        {'Foram criados ' + totalClientes + ' clientes nos últimos 30 dias.'}
-                    </span>
                 </div>
 
-                {/*dica do dia*/}
-                <div className='col-6 text-end'>
-                    <span className='fs-5 lh-sm text-indigo fw-bold ' title={dicaDoDia + ' - ' + autorDica}>
-                        Dica do dia :)
-                    </span><br />
-                    <span className=' p-2 badge fw-normal bg-light lh-sm text-secondary text-end text-wrap w-75'>
-                        {dicaDoDia + ' ~' + autorDica}
-                    </span>
-                </div>
+                
             </div>  
             <br />
-            <div className="mb-3 row"> 
-                <div className="row">
-                    <div className="px-xxl-4 px-xl-3 px-sm-2 px-xs-1 col-12 col-sm-6 col-lg-3 align-self-center">
-                        <div className="py-2 border rounded-4 bg-light d-flex w-100 flex-row justify-content-between align-items-center shadow p-3 bg-body rounded ">
-                            <span className='me-1'>
-                                <i className="m-0 fs-2  text-primary bi bi-people"></i>
-                            </span>
-                            &nbsp;&nbsp;
-                            <span className='h5 text-dark '>
-                                Total Clientes:
-                            </span>
-                            <span className='fw-bold fs-4 p-1'>
-                                {totalClientes}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <br />
+            
             <div className="mb-3 row">
                 <div className='col d-flex justify-content-start align-items-center fs-6 fw-normal text-muted'>
                     <span className='me-2'>
@@ -227,8 +239,6 @@ export default function ClientesComponent() {
                         <ul className="dropdown-menu" aria-labelledby="dropdown-filtro">
                             <li><button className="dropdown-item" onClick={e => { handleFiltro('nome', 'ASC', e.target.textContent) }} type='button'>Nome de cliente (A-Z)</button></li>
                             <li><button className="dropdown-item" onClick={e => { handleFiltro('nome', 'DESC', e.target.textContent) }} type='button'>Nome de cliente (Z-A)</button></li>
-                            <li><button className="dropdown-item" onClick={e => { handleFiltro('distrito', 'ASC', e.target.textContent) }} type='button'>Distrito (A-Z)</button></li>
-                            <li><button className="dropdown-item" onClick={e => { handleFiltro('distrito', 'DESC', e.target.textContent) }} type='button'>Distrito (Z-A)</button></li>
                             <li><button className="dropdown-item" onClick={e => { handleFiltro('created_at', 'ASC', e.target.textContent) }} type='button'>Data de criação</button></li>
                         </ul>
                     </div>
@@ -241,10 +251,9 @@ export default function ClientesComponent() {
                         <thead>
                             <tr className=''>
                                 <th className='text-start' style={{ width: '20%' }}>Nome</th>
-                                <th className='text-start' style={{ width: '25%' }}>Contactos</th>
-                                <th className='text-start' style={{ width: '15%' }}>Distrito</th>
-                                <th className='text-center' style={{ width: '20%' }} colSpan={1}></th>
-                                <th className='text-center' style={{ width: '20%' }} colSpan={1}></th>
+                                <th className='text-start' style={{ width: '20%' }}>Contactos</th>
+                                <th className='text-start' style={{ width: '15%' }}>Estado</th>
+                                <th className='text-center' style={{ width: '25%' }} colSpan={1}></th>
                             </tr>
                         </thead>
                         <tbody>

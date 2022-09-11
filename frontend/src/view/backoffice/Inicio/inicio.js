@@ -37,7 +37,7 @@ export default function InicioComponent() {
                 ip + '/pedidos/all' +
                 '?ordem=' + ordemPedido +
                 '&filtro=' + filtroPedido +
-                '&estado_id=' + filtroEstadoPedido + 
+                '&estado_id=' + filtroEstadoPedido +
                 '&limite=4',
                 authHeader()
             )
@@ -72,12 +72,7 @@ export default function InicioComponent() {
             .then(res => { setMotivos(res.data) })
 
 
-        // Get dica do dia
-        axios.get('https://api.quotable.io/random?tags=success|inspirational|happiness')
-            .then(res => {
-                setAutorDica(res.data.author)
-                setDicaDoDia(res.data.content)
-            })
+       
 
         setUsername(authService.getCurrentUser()?.username ?? '')
     }, [])
@@ -90,7 +85,7 @@ export default function InicioComponent() {
     function mudarEmail(id) {
         const div1 = document.getElementById(id)
         const exampleAttr = div1.getAttribute('data-email');
-        setEmail(exampleAttr); 
+        setEmail(exampleAttr);
     }
     function LoadInfoPedidosCliente() {
         if (!pedidos.length) { return }
@@ -157,19 +152,19 @@ export default function InicioComponent() {
                                 <div className='mt-2'>
                                     {(pedido.estado_id === 1 || pedido.estado_id === 2 || pedido.estado_id === 3) &&
 
-<button
-id='contactar-cliente-btn'
-className='btn btn-warning w-100 fw-semibold'
-data-bs-toggle='modal'
-data-bs-target="#contactar-cliente-modal"
-onClick={() => mudarEmail(pedido.cliente.id)}
->
-<i className='me-2 bi bi-send-fill'></i>
-Contactar cliente
+                                        <button
+                                            id='contactar-cliente-btn'
+                                            className='btn btn-warning w-100 fw-semibold'
+                                            data-bs-toggle='modal'
+                                            data-bs-target="#contactar-cliente-modal"
+                                            onClick={() => mudarEmail(pedido.cliente.id)}
+                                        >
+                                            <i className='me-2 bi bi-send-fill'></i>
+                                            Contactar cliente
 
-</button>
+                                        </button>
                                     }
-                                    {( pedido.estado_id === 4) &&
+                                    {(pedido.estado_id === 4) &&
                                         <button className='btn btn-warning w-100' disabled>
                                             <i className='me-2 bi bi-send-slash-fill'></i>
                                             Contactar cliente
@@ -318,7 +313,7 @@ Contactar cliente
                     </div>
                 </div>
             </div>
-            <ContactarCliente destinatario={Email}/>
+            <ContactarCliente destinatario={Email} />
         </div>
     )
 }

@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import LogoIncommun from '../../assets/imgs/logotipoincommun.png'
 
 export default function FooterComponent() {
     return (
@@ -8,7 +7,7 @@ export default function FooterComponent() {
                 <p className='col-md-3 mb-0 justify-content-center'>© 2022 incommun creative lab</p>
 
                 <Link to='/' className='col-md-6 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none'>
-                    <img className='w-25' src={LogoIncommun} alt='' />
+                    
                 </Link>
 
                 <ul className='nav col-md-3 justify-content-around'>

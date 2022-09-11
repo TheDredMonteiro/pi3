@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios'
 import ip from '../../ip'
 import '../../styles/navdelado.css'
-import LogoIncommun from '../../assets/imgs/logotipoincommun.png'
 
 import authService from '../auth.service';
 import authHeader from '../auth-header'
@@ -34,7 +33,6 @@ export default function NavDeLadoComponent(props) {
             <div className='d-flex flex-sm-column flex-row flex-grow-1 align-items-center align-items-sm-start pt-2'
             >
                 <Link to='/' className='navbar-brand w-100 my-0 my-sm-4 text-light d-flex justify-content-start align-items-center'>
-                    <img src={LogoIncommun} alt='incommun' className='w-75  mx-auto d-block img-fluid' />
                 </Link>
 
                 {process.env.REACT_APP_MODE === 'development' &&

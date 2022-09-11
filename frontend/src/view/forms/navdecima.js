@@ -1,41 +1,83 @@
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom';
 import LogoIncommun from '../../assets/imgs/logotipoincommun.png'
+import authService from '../auth.service';
+const divStyle2 = {
+    width: '100%',
+    height: '350px',
+    alignItems: 'center'
 
+};
 export default function NavDeCimaComponent(props) {
+    const [username, setUsername] = useState('')
+    const [useremail, setUseremail] = useState('')
+    const navigate = useNavigate()
+
+   
+    useEffect(() => {
+
+
+        setUsername(authService.getCurrentUser()?.username ?? 'User')
+        setUseremail(authService.getCurrentUser()?.email ?? '...')
+
+    }, [])
     return (
-        <nav style={{ height: '100px', zIndex: 10000 }} className='position-relative d-flex flex-row align-items-center justify-content-between bg-warning'>
+        <nav style={{ height: '100px', zIndex: 10000 }} className='position-relative d-flex flex-row  bg-dark-secondary'>
 
-            <Link to='/' className='navbar-brand h-75 top-0 ms-5 text-light d-flex align-items-center'>
-                <img src={LogoIncommun} alt='incommun' className='h-50' />
-            </Link>
+             <div className='align-items-right justify-content-center d-flex flex-column  w-25 mb-0' >
+                <h3 className='text-center align-items-right justify-content-center d-flex flex-column  w-100 mb-0' style={{ color: "white",textShadow: "3px 3px 5px #000000" }}>Livraria Monteiro</h3>
+                <h5 className='text-center align-items-right justify-content-center d-flex flex-column  w-100 mb-0' style={{ color: "white",textShadow: "2px 2px 4px #000000" }}>Encontra o teu livro</h5>
+                
+            </div>
+           
+            <div className='text-light align-items-center justify-content-center d-flex flex-column w-50 mb-0'>
+                <Link to='/back-office/livros'
+                    className='btn btn-outline-secondary border-0  rounded-0 fs-5  d-flex'
+                    onFocus={e => setTimeout(() => { e.target.blur() }, 200)}>
+                    <span>Meus Livros</span>
+                </Link>
+            </div>
+            <div className='text-light align-items-center justify-content-center d-flex flex-column w-50 mb-0'>
+                <Link to='/back-office/livros'
+                    className='btn btn-outline-secondary border-0  rounded-0 fs-5  d-flex'
+                    onFocus={e => setTimeout(() => { e.target.blur() }, 200)}>
+                    <span>Categorias Favoritas</span>
+                </Link>
+            </div>
+            
+            
 
-            {
-                process.env.REACT_APP_MODE === 'development' &&
-                <span className='text-danger fw-bold text-center fs-5 font-monospace lh-sm'>
-                    ⚠ Em modo de desenvolvimento ⚠
-                    <br/>
-                    back office = bar aberto
-                </span>
-            }
 
-            {
-                props.auth ?
 
-                    <Link
-                        to='/back-office/'
-                        className='btn btn-outline-dark rounded-0 me-4'
+
+            <div className='align-items-right justify-content-center py-sm-4 '>
+                <Link
+                    id='dropdown-user'
+                    className='btn btn-outline-secondary border-0 rounded-0  d-flex align-items-center dropdown-toggle'
+                    to='#'
+                    data-bs-toggle='dropdown'
+                    aria-expanded='false'
+                >
+                    <i className='bi bi-person fs-4'></i>
+                    
+                </Link>
+
+                <ul className='dropdown-menu dropdown-menu-dark rounded-0 m-0' aria-labelledby='dropdown-user'>
+
+
+
+
+
+                    <li><button className='dropdown-item'
+                        onClick={e => { authService.logout();props.setLogin(false); navigate('/'); alert("logout");}}
                     >
-                        Back Office
-                    </Link> 
-                    :
-                    <Link
-                        to='/back-office/login'
-                        className='btn btn-outline-dark rounded-0 me-4'
-                    >
-                        Login
-                    </Link>
+                        <i className='bi bi-door-open me-2'></i>
+                        Log out
+                    </button></li>
+                </ul>
+            </div>
 
-            }
+            &nbsp;&nbsp;&nbsp;&nbsp;
         </nav>
     )
 }

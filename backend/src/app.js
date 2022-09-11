@@ -6,13 +6,11 @@ const app = express()
 app.set('port', process.env.PORT || 4011)
 
 
-const formsRoutes = require('./routes/formsRoutes.js')
-const pedidosRoutes = require('./routes/pedidosRoutes.js')
+const livrosRoutes = require('./routes/livrosRoutes.js')
 const clientesRoutes = require('./routes/clientesRoutes.js')
-const graphRoutes = require('./routes/graphRoutes.js')
-
 // user incommun, não confundir com clientes
 const userRoutes = require('./routes/userRoutes.js')
+const categoriaRoutes = require('./routes/categoriaRoutes.js')
 
 //* Middlewares
 app.use(cors({
@@ -26,11 +24,10 @@ app.use((req, res, next) => {
 });
 
 //* Rotas
-app.use('/forms', formsRoutes)
-app.use('/pedidos', pedidosRoutes)
+app.use('/livros', livrosRoutes)
 app.use('/clientes', jwt_middleware.checkToken, clientesRoutes)
 app.use('/user', userRoutes)
-app.use('/graph', jwt_middleware.checkToken, graphRoutes)
+app.use('/categorias', categoriaRoutes)
 
 // rota de introdução, apresenta um html bonitinho só
 app.use('/', (req, res) => {
