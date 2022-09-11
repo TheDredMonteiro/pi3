@@ -2,11 +2,11 @@ const { Sequelize } = require('sequelize');
 // testing
 
 const sequelize = new Sequelize(
-    'pi3-livraria',
-    'postgres',
-    'portugal',
+    'dc1i5s1vpgh4jk',
+    'wthaufnpcarmcg',
+    '4473673d95f52d96605e28faedc15fb7ff3397de0fbe06b61b30be1193797aac',
     {
-        host: 'localhost',
+        host: 'ec2-63-32-248-14.eu-west-1.compute.amazonaws.com',
         port: '5432',
         dialect: 'postgres',
         logging: false,
